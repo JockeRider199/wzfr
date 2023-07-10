@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Guild {
+  modelId       String        @id @default(uuid())
+  id            String        @unique
+  ticketsConfig TicketConfig?
+  tickets       Ticket[]
+}
+
+model TicketConfig {
+  modelId    String   @id @default(uuid())
+  guild      Guild    @relation(fields: [guildId], references: [id])
+  guildId    String   @unique
+  count      Int      @default(0000)
+  modRoleId  String
+  categoryId String
+  tickets    Ticket[]
+}
+
+model Ticket {
+  modelId   String       @id @default(uuid())
+  guild     Guild        @relation(fields: [guildId], references: [id])
+  guildId   String       @unique
+  config    TicketConfig @relation(fields: [configId], references: [modelId])
+  configId  String
+  ownerId   String
+  channelId String       @unique
+  opened    Boolean      @default(true)
+}
